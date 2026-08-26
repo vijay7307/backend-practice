@@ -61,6 +61,44 @@ app.get("/api/students/:id", (req, res) => {
     return res.json(student);
 });
 
+app.post("/api/students", (req, res) => {
+    const { name, marks, department } = req.body;
+
+    if (
+        typeof name !== "string" ||
+        name.trim() === "" ||
+        typeof department !== "string" ||
+        department.trim() === "" ||
+        marks === undefined
+    ) {
+        return res.status(400).json({
+            message: "Name, marks and department are required",
+        });
+    }
+
+    if (typeof marks !== "number" || marks < 0 || marks > 100) {
+        return res.status(400).json({
+            message: "Marks must be between 0 and 100",
+        });
+    }
+
+    const id = students.length ? Math.max(...students.map((s) => s.id)) + 1 : 1;
+
+    const student = {
+        id,
+        name: name.trim(),
+        marks,
+        department: department.trim(),
+    };
+
+    students.push(student);
+
+    return res.status(201).json({
+        message: "Student created successfully",
+        student,
+    });
+});
+
 app.listen(3000, () => {
     console.log("server started!");
 });

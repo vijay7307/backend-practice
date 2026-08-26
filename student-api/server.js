@@ -99,6 +99,83 @@ app.post("/api/students", (req, res) => {
     });
 });
 
+app.patch("/api/students/:id", (req, res) => {
+    const id = Number(req.params.id);
+
+    if (Number.isNaN(id)) {
+        return res.status(400).json({
+            message: "Invalid student ID",
+        });
+    }
+
+    const student = students.find((s) => s.id === id);
+
+    if (!student) {
+        return res.status(404).json({
+            message: "Student not found",
+        });
+    }
+
+    const { name, marks, department } = req.body;
+
+    if (name !== undefined) {
+        if (typeof name !== "string" || name.trim() === "") {
+            return res.status(400).json({
+                message: "Invalid name",
+            });
+        }
+
+        student.name = name.trim();
+    }
+
+    if (marks !== undefined) {
+        if (typeof marks !== "number" || marks < 0 || marks > 100) {
+            return res.status(400).json({
+                message: "Marks must be between 0 and 100",
+            });
+        }
+
+        student.marks = marks;
+    }
+
+    if (department !== undefined) {
+        if (typeof department !== "string" || department.trim() === "") {
+            return res.status(400).json({
+                message: "Invalid department",
+            });
+        }
+
+        student.department = department.trim();
+    }
+
+    return res.status(200).json({
+        message: "Student updated successfully",
+        student,
+    });
+});
+
+app.delete("/api/students/:id", (req, res) => {
+    const id = Number(req.params.id);
+
+    if (Number.isNaN(id)) {
+        return res.status(400).json({
+            message: "Invalid student ID",
+        });
+    }
+
+    const index = students.findIndex((s) => s.id === id);
+
+    if (index === -1) {
+        return res.status(404).json({
+            message: "Student not found",
+        });
+    }
+
+    students.splice(index, 1);
+
+    return res.status(204).send();
+});
+
 app.listen(3000, () => {
     console.log("server started!");
 });

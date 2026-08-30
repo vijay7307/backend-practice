@@ -41,6 +41,31 @@ app.get("/api/students", (req, res) => {
     return res.json(filteredStudents);
 });
 
+app.get("/api/students/count", (req, res) => {
+    const count = students.length;
+    return res.json({
+        count
+    });
+})
+
+app.get("/api/students/topper", (req, res) => {
+    if(students.length === 0){
+        return res.status(404).json({
+            message : "no student found"
+        })
+    }
+    
+    let topper = students[0];
+    for (let i = 1; i < students.length; i++) {
+        const student = students[i];
+        if (student.marks > topper.marks) {
+            topper = student;
+        } 
+    }
+    return res.json(topper);
+    
+})
+
 app.get("/api/students/:id", (req, res) => {
     const id = Number(req.params.id);
 

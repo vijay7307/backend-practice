@@ -10,6 +10,18 @@ app.use((req, res, next) => {
     next()
 })
 
+app.use((req, res, next) => {
+    const startTime = process.hrtime.bigint();
+
+    res.on("finish", () => {
+        const endTime = process.hrtime.bigint();
+        const duration = Number(endTime - startTime) / 1e6;
+        console.log(`${req.method} ${req.url} - ${duration.toFixed(2)}ms`);
+    })
+
+    next()
+})
+
 const students = [
     {
         id: 1,

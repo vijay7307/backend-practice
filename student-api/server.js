@@ -4,6 +4,12 @@ const app = express();
 
 app.use(express.json());
 
+app.use((req, res, next) => {
+    console.log(req.method)
+    console.log(req.url)
+    next()
+})
+
 const students = [
     {
         id: 1,

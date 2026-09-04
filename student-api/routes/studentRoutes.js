@@ -1,5 +1,7 @@
 const express = require("express");
 
+const AppError = require("../utils/appError")
+
 const studentRoutes = express.Router();
 
 const students = [
@@ -17,15 +19,14 @@ const students = [
     },
 ];
 
-studentRoutes.get("/", (req, res) => {
+studentRoutes.get("/", (req, res, next) => {
     const { department, minMarks } = req.query;
 
     const marks = minMarks !== undefined ? Number(minMarks) : undefined;
 
     if (marks !== undefined && Number.isNaN(marks)) {
-        return res.status(400).json({
-            message: "minMarks must be a number",
-        });
+        const error = new AppError(400, "minmarks must be a numbet");
+        return next(error);
     }
 
     const filteredStudents = students.filter((s) => {
@@ -46,11 +47,10 @@ studentRoutes.get("/count", (req, res) => {
     });
 });
 
-studentRoutes.get("/topper", (req, res) => {
+studentRoutes.get("/topper", (req, res, next) => {
     if (students.length === 0) {
-        return res.status(404).json({
-            message: "no student found",
-        });
+        const error = new AppError(404, "no student found");
+        return next(error);
     }
 
     let topper = students[0];
@@ -63,27 +63,25 @@ studentRoutes.get("/topper", (req, res) => {
     return res.json(topper);
 });
 
-studentRoutes.get("/:id", (req, res) => {
+studentRoutes.get("/:id", (req, res, next) => {
     const id = Number(req.params.id);
 
     if (Number.isNaN(id)) {
-        return res.status(400).json({
-            message: "Invalid student ID",
-        });
+        const error = new AppError(400, "Invalid student ID");
+        return next(error);
     }
 
     const student = students.find((s) => s.id === id);
 
     if (!student) {
-        return res.status(404).json({
-            message: "Student not found",
-        });
+        const error = new AppError(404, "Student not found")
+        return next(error);
     }
 
     return res.json(student);
 });
 
-studentRoutes.post("/", (req, res) => {
+studentRoutes.post("/", (req, res, next) => {
     const { name, marks, department } = req.body;
 
     if (
@@ -93,15 +91,16 @@ studentRoutes.post("/", (req, res) => {
         department.trim() === "" ||
         marks === undefined
     ) {
-        return res.status(400).json({
-            message: "Name, marks and department are required",
-        });
+        const error = new AppError(
+            400,
+            "Name, marks and department are required",
+        ); 
+        return next(error);
     }
 
     if (typeof marks !== "number" || marks < 0 || marks > 100) {
-        return res.status(400).json({
-            message: "Marks must be between 0 and 100",
-        });
+        const error = new AppError(400, "Marks must be between 0 and 100");
+        return next(error);
     }
 
     const id = students.length ? Math.max(...students.map((s) => s.id)) + 1 : 1;
@@ -121,30 +120,30 @@ studentRoutes.post("/", (req, res) => {
     });
 });
 
-studentRoutes.patch("/:id", (req, res) => {
+studentRoutes.patch("/:id", (req, res, next) => {
     const id = Number(req.params.id);
 
     if (Number.isNaN(id)) {
-        return res.status(400).json({
-            message: "Invalid student ID",
-        });
+        const error = new AppError(
+            400,
+            "Invalid student ID",
+        );
+        return next(error);
     }
 
     const student = students.find((s) => s.id === id);
 
     if (!student) {
-        return res.status(404).json({
-            message: "Student not found",
-        });
+        const error = new AppError(404, "Student not found");
+        return next(error);
     }
 
     const { name, marks, department } = req.body;
 
     if (name !== undefined) {
         if (typeof name !== "string" || name.trim() === "") {
-            return res.status(400).json({
-                message: "Invalid name",
-            });
+            const error = new AppError(400, "Invalid name");
+            return next(error);
         }
 
         student.name = name.trim();
@@ -152,9 +151,8 @@ studentRoutes.patch("/:id", (req, res) => {
 
     if (marks !== undefined) {
         if (typeof marks !== "number" || marks < 0 || marks > 100) {
-            return res.status(400).json({
-                message: "Marks must be between 0 and 100",
-            });
+            const error = new AppError(400, "Marks must be between 0 and 100");
+            return next(error);
         }
 
         student.marks = marks;
@@ -162,9 +160,8 @@ studentRoutes.patch("/:id", (req, res) => {
 
     if (department !== undefined) {
         if (typeof department !== "string" || department.trim() === "") {
-            return res.status(400).json({
-                message: "Invalid department",
-            });
+            const error = new AppError(400, "Invalid department");
+            return next(error);
         }
 
         student.department = department.trim();
@@ -176,21 +173,19 @@ studentRoutes.patch("/:id", (req, res) => {
     });
 });
 
-studentRoutes.delete("/:id", (req, res) => {
+studentRoutes.delete("/:id", (req, res, next) => {
     const id = Number(req.params.id);
 
     if (Number.isNaN(id)) {
-        return res.status(400).json({
-            message: "Invalid student ID",
-        });
+        const error = new AppError(404, "Invalid student ID");
+        return next(error);
     }
 
     const index = students.findIndex((s) => s.id === id);
 
     if (index === -1) {
-        return res.status(404).json({
-            message: "Student not found",
-        });
+        const error = new AppError(400, "Student not found");
+        return next(error);
     }
 
     students.splice(index, 1);

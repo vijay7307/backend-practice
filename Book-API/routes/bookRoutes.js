@@ -117,16 +117,11 @@ bookRouter.delete("/:id", (req, res, next) => {
         return next(error);
     }
 
-    const book = books.find((book) => {
+    const index = books.findIndex((book) => {
         return book.id === id;
     });
 
-    if (!book) {
-        const error = new appError(404, "not found");
-        return next(error);
-    }
-
-    books.pop(book);
+    books.splice(index, 1);
     return res.status(200).json({
         message: "book deleted succesfully",
     });

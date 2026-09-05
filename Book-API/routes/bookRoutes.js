@@ -80,6 +80,11 @@ bookRouter.patch("/:id", (req, res, next) => {
         return book.id === id;
     });
 
+    if(!book){
+        const error = appError(404, "not found!");
+        next(error);
+    }
+
     const { title, author, price, genre } = req.body;
 
     if (title !== undefined) {

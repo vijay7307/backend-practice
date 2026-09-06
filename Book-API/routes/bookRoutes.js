@@ -1,44 +1,34 @@
 const express = require("express");
 
+const books = require("../models/Book")
+
 const bookRouter = express.Router();
 
 const appError = require("../utils/appError");
 
-const books = [
-    {
-        id: 1,
-        title: "herry potter",
-        author: "J.K.Rowling",
-        price: 500,
-        genre: "fiction",
+bookRouter.get("/", async(req, res, next) => {
+    const allBooks = await books.find()
+    console.log("inside get all books")
+    if(!allBooks){
+        const error = new appError(404, "no books found!")
+        next(error);
     }
-];
-
-bookRouter.get("/", (req, res) => {
-    return res.status(200).json(books);
+    return res.status(200).json(allBooks);
 });
 
-bookRouter.get("/:id", (req, res, next) => {
-    const id = Number(req.params.id);
+bookRouter.get("/:id", async (req, res, next) => {
 
-    if (Number.isNaN(id)) {
-        const error = new appError(400, "id is invalid");
-        return next(error);
-    }
-
-    const book = books.find((book) => {
-        return book.id === id;
-    });
+    const book = await books.findById(req.params.id);
 
     if (!book) {
-        const error = new appError(404, "not found");
+        const error = new appError(404, "book not found");
         return next(error);
     }
 
     return res.status(200).json(book);
 });
 
-bookRouter.post("/", (req, res, next) => {
+bookRouter.post("/", async(req, res, next) => {
     const { title, author, price, genre } = req.body;
     if (!title || !author || !price || !genre) {
         const error = new appError(
@@ -51,16 +41,8 @@ bookRouter.post("/", (req, res, next) => {
         const error = new appError(400, "price is invalid");
         return next(error);
     }
-    const id = books.length + 1;
-    const book = {
-        id: id,
-        title,
-        author,
-        price,
-        genre,
-    };
 
-    books.push(book);
+    const book = await books.create(req.body);
 
     return res.status(201).json({
         message: "new book created",
@@ -68,60 +50,28 @@ bookRouter.post("/", (req, res, next) => {
     });
 });
 
-bookRouter.patch("/:id", (req, res, next) => {
-    const id = Number(req.params.id);
+bookRouter.patch("/:id", async(req, res, next) => {
 
-    if (Number.isNaN(id)) {
-        const error = new appError(400, "id is invalid");
-        return next(error);
-    }
-
-    const book = books.find((book) => {
-        return book.id === id;
-    });
+    const book = await books.findByIdAndUpdate(
+        req.params.id,
+        {$set : req.body},
+        {new : true}
+    );
 
     if(!book){
-        const error = appError(404, "not found!");
+        const error = new appError(404, "book not found!");
         next(error);
     }
 
-    const { title, author, price, genre } = req.body;
-
-    if (title !== undefined) {
-        book.title = title;
-    }
-    if (author !== undefined) {
-        book.author = author;
-    }
-    if (price !== undefined) {
-        if (Number.isNaN(price)) {
-            const error = new appError(400, "price is invalid");
-            return next(error);
-        }
-        book.price = price;
-    }
-    if (genre !== undefined) {
-        book.genre = genre;
-    }
     return res.status(200).json({
         message: "book updated successfully",
         book,
     });
 });
 
-bookRouter.delete("/:id", (req, res, next) => {
-    const id = Number(req.params.id);
+bookRouter.delete("/:id", async(req, res, next) => {
+    await books.findByIdAndDelete(req.params.id)
 
-    if (Number.isNaN(id)) {
-        const error = new appError(400, "id is invalid");
-        return next(error);
-    }
-
-    const index = books.findIndex((book) => {
-        return book.id === id;
-    });
-
-    books.splice(index, 1);
     return res.status(200).json({
         message: "book deleted succesfully",
     });

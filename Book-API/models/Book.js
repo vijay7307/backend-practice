@@ -3,18 +3,24 @@ const mongoose = require("mongoose")
 const bookSchema = new mongoose.Schema({
     title : {
         type : String,
-        required : true
+        required : true,
+        minlength : 2,
+        maxlength : 50
     },
     author : {
         type : String,
-        required : true
+        required : true,
+        minlength : 2,
+        maxlength : 20
     },
     price : {
         type : Number,
-        required : true
+        required : true,
+        min : 100
     },
     genre : {
-        type : String
+        type : String,
+        enum : ["fiction", "nonFiction"]
     }
 })
 

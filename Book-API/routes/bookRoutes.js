@@ -7,13 +7,29 @@ const bookRouter = express.Router();
 const appError = require("../utils/appError");
 
 bookRouter.get("/", async(req, res, next) => {
-    const allBooks = await books.find()
-    console.log("inside get all books")
-    if(!allBooks){
-        const error = new appError(404, "no books found!")
+    const { genre, maxPrice, minPrice } = req.query;
+    const filter = {};
+
+    if(genre){
+        filter.genre = genre;
+    }
+    if(minPrice || maxPrice){
+        filter.price = {};
+        if (maxPrice) {
+            filter.price.$lte = maxPrice;
+        };
+        if (minPrice) {
+            filter.price.$gte = minPrice;
+        };
+    }
+
+    const allBooks = await books.find(filter);
+    if (allBooks.length === 0) {
+        const error = new appError(404, "no books found!");
         next(error);
     }
     return res.status(200).json(allBooks);
+    
 });
 
 bookRouter.get("/:id", async (req, res, next) => {

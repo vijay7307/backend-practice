@@ -65,7 +65,7 @@ authRouter.post("/login", async (req, res, next) => {
             {
                 userId: existed_user._id,
             },
-            "vijaysecretkey",
+            process.env.JWT_SECRET_KEY,
             {
                 expiresIn: "1d",
             },

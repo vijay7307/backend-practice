@@ -10,6 +10,8 @@ const authRouter = require("./routes/auth-routes");
 
 const profileRouter = require("./routes/profile-routes")
 
+const protectedRoutes = require("./routes/protected-routes")
+
 const connectDB = require("./db/index");
 
 dotenv.config({
@@ -23,6 +25,8 @@ app.use(express.json());
 app.use("/api/auth", authRouter);
 
 app.use("/api/auth", profileRouter);
+
+app.use("/api/auth", protectedRoutes);
 
 app.use((err, req, res, next) => {
     console.log("error", err);

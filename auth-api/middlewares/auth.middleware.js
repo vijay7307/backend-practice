@@ -17,8 +17,6 @@ const authenticate = (req, res, next) => {
         const error = new ApiError(401, "invalid or expired token");
         return next(error);
     }
-
-
 }
 
 module.exports = authenticate;

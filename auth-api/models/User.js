@@ -11,15 +11,20 @@ const userSchema = mongoose.Schema({
     email: {
         type: String,
         required: true,
-        lowercase : true,
+        lowercase: true,
         trim: true,
-        unique : true
+        unique: true,
     },
-    password : {
-        type : String,
-        required : true,
-        minlength : 8
-    }
+    password: {
+        type: String,
+        required: true,
+        minlength: 8,
+    },
+    role: {
+        type: String,
+        enum: ["user", "admin"],
+        default: "user",
+    },
 });
 
 const User = mongoose.model("User", userSchema);

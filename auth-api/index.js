@@ -8,8 +8,6 @@ const dotenv = require("dotenv");
 
 const authRouter = require("./routes/auth-routes");
 
-const profileRouter = require("./routes/profile-routes")
-
 const protectedRoutes = require("./routes/protected-routes")
 
 const connectDB = require("./db/index");
@@ -23,8 +21,6 @@ connectDB();
 app.use(express.json());
 
 app.use("/api/auth", authRouter);
-
-app.use("/api/auth", profileRouter);
 
 app.use("/api/auth", protectedRoutes);
 

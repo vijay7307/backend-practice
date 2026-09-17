@@ -1,14 +1,13 @@
 const express = require("express");
 const authenticate = require("../middlewares/auth.middleware")
 const authorize = require("../middlewares/authorize.middleware")
+const viewProfile = require("../controllers/profile.controller")
+const admin = require("../controllers/admin.controller")
 
 const Router = express.Router();
 
-Router.get("/admin", authenticate, authorize("admin"), (req, res) => {
-    console.log("now admin only do task at this route");
-    res.status(200).json({
-        message : "this is only admins space"
-    })
-})
+Router.get("/profile", authenticate, authorize("admin", "user"), viewProfile)
+
+Router.get("/admin", authenticate, authorize("admin"), admin)
 
 module.exports = Router;

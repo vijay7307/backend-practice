@@ -74,8 +74,7 @@ authRouter.post("/login", async (req, res, next) => {
         );
 
         return res.status(200).header("Authorization", `Bearer ${token}`).json({
-            message: "login successful",
-            token : token
+            message: "login successful"
         });
     } else {
         const error = new ApiError(401, "invalid password!");

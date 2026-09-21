@@ -1,86 +1,13 @@
 const express = require("express")
 
-const bcrypt = require("bcrypt");
+const registerUser = require("../controllers/register.controller")
 
-const jwt = require("jsonwebtoken");
-
-const user = require("../models/User")
-
-const ApiError = require("../utils/apiError")
+const loginUser = require("../controllers/login.controller");
 
 const authRouter = express.Router();
 
-authRouter.post("/register", async (req, res, next) => {
+authRouter.post("/register", registerUser)
 
-    const { name, email, password, role } = req.body;
-
-    if(!name || !email || !password || !role){
-        const error = new ApiError(400, "name, email, role and password all are required!");
-        return next(error);
-    }
-
-    const existedUser = await user.findOne({ email });
-
-    if(existedUser){
-        const error = new ApiError(409, "email already exists");
-        return next(error);
-    }
-
-    const hashPassword = await bcrypt.hash(password, 10);
-
-    const endUser = await user.create({
-        name,
-        email,
-        password : hashPassword,
-        role
-    })
-
-    return res.status(201).json({
-        message : "user created",
-        endUser
-    })
-
-})
-
-authRouter.post("/login", async (req, res, next) => {
-    const { email, password, role } = req.body;
-
-    if(!email || !password){
-        const error = new ApiError(404, "email and password both required");
-        return next(error);
-    }
-
-    const existed_user = await user.findOne({
-        email
-    })
-
-    if(!existed_user){
-        const error = new ApiError(404, "not found!");
-        return next(error);
-    }
-
-    const isPasswordCorrect = await bcrypt.compare(password, existed_user.password);
-
-    if (isPasswordCorrect) {
-        const token = jwt.sign(
-            {
-                userId: existed_user._id,
-                role : existed_user.role
-            },
-            process.env.JWT_SECRET_KEY,
-            {
-                expiresIn: "1d",
-            },
-        );
-
-        return res.status(200).header("Authorization", `Bearer ${token}`).json({
-            message: "login successful"
-        });
-    } else {
-        const error = new ApiError(401, "invalid password!");
-        return next(error);
-    }
-
-})
+authRouter.post("/login", loginUser)
 
 module.exports = authRouter;

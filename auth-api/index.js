@@ -6,6 +6,8 @@ const app = express();
 
 const dotenv = require("dotenv");
 
+const centralError = require("./middlewares/centralError")
+
 const authRouter = require("./routes/auth-routes");
 
 const protectedRoutes = require("./routes/protected-routes")
@@ -24,12 +26,7 @@ app.use("/api/auth", authRouter);
 
 app.use("/api/auth", protectedRoutes);
 
-app.use((err, req, res, next) => {
-    console.log("error", err);
-    res.status(err.status).json({
-        message : err.message
-    });
-})
+app.use(centralError);
 
 app.listen(3000, () => {
     console.log("server started! ✨✨✨✨");

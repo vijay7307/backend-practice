@@ -8,6 +8,8 @@ const connectDB = require("./db/index");
 
 const bookRoutes = require("./routes/bookRoutes")
 
+const filterRouter = require("./routes/filter.routes")
+
 const mainError = require("./middleware/errorMiddleware")
 
 const appError = require("./utils/appError");
@@ -21,6 +23,9 @@ connectDB();
 app.use(express.json());
 
 app.use("/api/books", bookRoutes);
+
+app.use("/api/books", filterRouter);
+
 
 app.use((req, res, next) => {
     const error = new appError(404, "route not found");
